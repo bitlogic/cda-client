@@ -21,7 +21,7 @@ def search_fingerprint_local(fingerprint, local_db):
 
 
 def authenticate():
-    cred = credentials.Certificate("adminsdk.json")
+    cred = credentials.Certificate("google_credentials.json")
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://cda-bithouse.firebaseio.com/',
     })
