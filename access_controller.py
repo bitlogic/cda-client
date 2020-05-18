@@ -4,7 +4,7 @@ import firebase_admin
 import pytz
 from firebase_admin import credentials
 from firebase_admin import db
-import urllib2
+import urllib.request as urllib2
 from pymongo import MongoClient
 import uuid
 
@@ -12,6 +12,18 @@ import uuid
 def search_fingerprint_firebase(fingerprint):
     print('Searching fingerprint in firebase')
     return db.reference('fingerprints/' + fingerprint).get()
+
+
+def add_fingerprint(fingerprint, user):
+    print('Adding new fingerprint for ', user)  # TODO validar si la huella existe
+    fingerprint_ref = db.reference('fingerprints/')
+    user_id = None
+    for key, value in user.items():
+        user_id = key
+
+    fingerprint_ref.child(fingerprint).set({
+        'user': user_id
+    })
 
 
 def search_fingerprint_local(fingerprint, local_db):
@@ -27,16 +39,21 @@ def authenticate():
     })
 
 
-def add_log_firebase(user, hash, user_id):
+def add_log_firebase(hash, user):
     print('Adding remote log')
 
     time = datetime.now(tz=pytz.timezone("America/Argentina/Cordoba")).isoformat("T")
 
     logs_ref = db.reference('logs')
+
+    if user:
+        user_id = user['user']
+    else:
+        user_id = ''
     logs_ref.push({
         'datetime': str(time),
         'hash': hash,
-        'lastname': '',
+        'lastname': '',  # TODO
         'name': '',
         'user': user_id
     })
@@ -69,34 +86,36 @@ def search_user_by_id(id):
 
 
 def enter_fingerprint(fingerprint, db):
-    if validate_connection():
-        user_id = search_fingerprint_firebase(fingerprint)
-    else:
-        user_id = search_fingerprint_local(fingerprint, db)
-    print('user id: ', user_id)
+    pending_user = validate_pending_user()
 
-    if user_id:
-        print('Opening door to {}'.format(user_id))
+    if validate_connection() and pending_user:
+        add_fingerprint(fingerprint, pending_user)
+    else:
         if validate_connection():
-            add_log_firebase(None, fingerprint, user_id)
+            user_id = search_fingerprint_firebase(fingerprint)
         else:
-            add_log_local(None, fingerprint, user_id, db)
-        return 'OK'
+            user_id = search_fingerprint_local(fingerprint, db)
+        print('user id: ', user_id)
 
-    else:
-        # validar si hay usuario pendiente de aprobacion????
-        pending_user = None
-        if pending_user:
-            # crear usuario nuevo
-            print('Create user')
+        if user_id:
+            print('Opening door to {}'.format(user_id))
+            if validate_connection():
+                add_log_firebase(fingerprint, user_id)
+            else:
+                add_log_local(None, fingerprint, user_id, db)
             return 'OK'
+
         else:
             print('Blocking door')
             if validate_connection():
-                add_log_firebase(None, fingerprint, None)
+                add_log_firebase(fingerprint, None)
             else:
                 add_log_local(None, fingerprint, None, db)
             return 'ERROR'
+
+
+def validate_pending_user():
+    return db.reference('users/').order_by_child('status').equal_to('PENDING').get()
 
 
 def validate_connection():
