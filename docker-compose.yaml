@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  mongodb:
+    build: docker
+    volumes:
+      - .db:/data/db
+    networks:
+      - mongodb
+    ports: 
+      - "27020:27017"
+
+
+networks:
+  mongodb:
+    attachable: true
+    
