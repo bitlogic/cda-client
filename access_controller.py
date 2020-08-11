@@ -6,6 +6,7 @@ from datetime import datetime
 import pytz
 from firebase_admin import credentials
 from firebase_admin import db
+import firebase_admin
 from firebase_admin.exceptions import UnavailableError
 from pymongo import MongoClient
 from fingerprint_reader import FingerprintReader
@@ -38,24 +39,25 @@ def add_fingerprint(fingerprint, user):
             if next_fingerprint:
                 fingerprints_list.append(next_fingerprint)
 
-        fingerprint_ref = db.reference('fingerprints/')
-        user_id = None
-        for key, value in user.items():
-            user_id = key
-        print('Adding new fingerprint for ', user_id)
-        
-        for i in fingerprints_list:
-            fingerprint_ref.child(i).set({
-                'user': user_id
-            })
+        if fingerprints_list:
+            fingerprint_ref = db.reference('fingerprints/')
+            user_id = None
+            for key, value in user.items():
+                user_id = key
+            print('Adding new fingerprint for ', user_id)
 
-        # Exception Handler en caso de perdida de conexion
+            for i in fingerprints_list:
+                fingerprint_ref.child(i).set({
+                    'user': user_id
+                })
 
-        # Cambiar status de Pendiente a Active en Firebase si la huella se ha creado correctamente.
-        users_ref = db.reference('users/')
-        user_pending = users_ref.child(user_id)
-        user_pending.update({'status':'ACTIVE' })
-        print('Status changed to Active')
+            # Exception Handler en caso de perdida de conexion
+
+            # Cambiar status de Pendiente a Active en Firebase si la huella se ha creado correctamente.
+            users_ref = db.reference('users/')
+            user_pending = users_ref.child(user_id)
+            user_pending.update({'status':'ACTIVE' })
+            print('Status changed to Active')
 
 
 def search_fingerprint_local(fingerprint, local_db):
@@ -168,6 +170,12 @@ def validate_connection():
         return False
 
 
+def read_fingerprint():
+    print("Wating for fingerprint")
+    reader = FingerprintReader()
+    return reader.wait_for_fingerprint()
+
+
 client = MongoClient('localhost', 27020)
 local_db = client['cda']
 
@@ -175,10 +183,3 @@ authenticate()
 fingerprint = secrets.token_hex(nbytes=16)
 # search_fingerprint_local (read_fingerprint, local_db)
 enter_fingerprint(fingerprint, local_db)
-
-
-def read_fingerprint():
-    print("hola")
-    reader = FingerprintReader()
-    return reader.wait_for_fingerprint()
-
