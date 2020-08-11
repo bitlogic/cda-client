@@ -171,7 +171,6 @@ def validate_connection():
 
 
 def read_fingerprint():
-    print("Wating for fingerprint")
     reader = FingerprintReader()
     return reader.wait_for_fingerprint()
 
