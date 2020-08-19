@@ -44,7 +44,7 @@ class FingerprintReader:
 
             ## Hashes characteristics of template
             fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
-            print('SHA-2 hash of template: ' + fingerprint_hash)
+            print(fingerprint_hash)
             return fingerprint_hash
 
 
