@@ -22,9 +22,7 @@ class FingerprintReader:
             print('Exception message: ' + str(e))
             return None
 
-        ## Gets some sensor information
-        print('Currently used templates: ' + str(f.getTemplateCount()) +'/'+ str(f.getStorageCapacity()))
-
+   
         ## Tries to search the finger and calculate hash
         try:
             print('Waiting for finger...')
@@ -42,12 +40,12 @@ class FingerprintReader:
             positionNumber = result[0]
             accuracyScore = result[1]
 
-            if positionNumber == -1:
-                print('No match found!')
-                exit(0)
-            else:
-                print('Found template at position #' + str(positionNumber))
-                print('The accuracy score is: ' + str(accuracyScore))
+                        ## if positionNumber == -1:
+                        ##     print('No match found!')
+                        ##     exit(0)
+                       ##  else:
+                        ##     print('Found template at position #' + str(positionNumber))
+                         ##    print('The accuracy score is: ' + str(accuracyScore))
 
             ## OPTIONAL stuff
             ##
@@ -60,7 +58,7 @@ class FingerprintReader:
 
             ## Hashes characteristics of template
             fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
-            print('SHA-2 hash of template: ' + fingerprint_hash)
+            print(fingerprint_hash)
             return fingerprint_hash
 
 

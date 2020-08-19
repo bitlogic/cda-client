@@ -11,6 +11,10 @@ from firebase_admin.exceptions import UnavailableError
 from pymongo import MongoClient
 from fingerprint_reader import FingerprintReader
 
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+
 
 def catch_no_connection(func):
     def wrapper(context, *args, **kwargs):
@@ -33,7 +37,7 @@ def add_fingerprint(fingerprint, user):
    
     if search_fingerprint_firebase(fingerprint) is None:
         fingerprints_list = []
-        for x in range(0, 10):
+        for x in range(0, 5):
             # Llama la función de lectura huella (mockeada en este caso con una random function secret.token
             next_fingerprint = read_fingerprint()
             if next_fingerprint:
@@ -129,6 +133,12 @@ def enter_fingerprint(fingerprint, db):
     if user_id:
         # En esta linea hay que llamar la function que abre la puerta. Luego se carga el log etc. Asi el usuario no se queda esperando mas tiempo en la puerta
         print('Opening door to {}'.format(user_id))
+        RELAIS_1_GPIO = 17
+        GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
+        GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # out
+        time.sleep(1)
+        GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # on ñ.
+  
         if validate_connection():
             add_log_firebase(fingerprint, user_id)
         else:
@@ -140,7 +150,7 @@ def enter_fingerprint(fingerprint, db):
 
         if validate_connection() and pending_user:
             add_fingerprint(fingerprint, pending_user)
-            return 'OK'
+            return 'OK - Usuario agregado en Firebase'
 
         elif pending_user is None:
             print('Blocking door')
@@ -179,6 +189,7 @@ client = MongoClient('localhost', 27020)
 local_db = client['cda']
 
 authenticate()
-fingerprint = secrets.token_hex(nbytes=16)
-# search_fingerprint_local (read_fingerprint, local_db)
+# fingerprint = secrets.token_hex(nbytes=16)
+fingerprint = read_fingerprint()
+print(fingerprint)
 enter_fingerprint(fingerprint, local_db)
