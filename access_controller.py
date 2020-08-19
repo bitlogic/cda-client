@@ -175,10 +175,17 @@ def read_fingerprint():
     return reader.wait_for_fingerprint()
 
 
+def execute():
+    while True:
+        fingerprint = read_fingerprint()
+
+        if fingerprint:
+            enter_fingerprint(fingerprint, local_db)
+
+
 client = MongoClient('localhost', 27020)
 local_db = client['cda']
 
 authenticate()
-fingerprint = secrets.token_hex(nbytes=16)
-# search_fingerprint_local (read_fingerprint, local_db)
-enter_fingerprint(fingerprint, local_db)
+
+execute()
