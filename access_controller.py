@@ -1,4 +1,3 @@
-import secrets
 import urllib.request as urllib2
 import uuid
 from datetime import datetime
@@ -7,7 +6,6 @@ import pytz
 from firebase_admin import credentials
 from firebase_admin import db
 import firebase_admin
-from firebase_admin.exceptions import UnavailableError
 from pymongo import MongoClient
 from fingerprint_reader import FingerprintReader
 
@@ -16,55 +14,41 @@ import time
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
 
-def catch_no_connection(func):
-    def wrapper(context, *args, **kwargs):
-        try:
-            return func(context, *args, **kwargs)
-        except UnavailableError as e:
-            print("OOPS!! Connection Error. Make sure you are connected to Internet. Technical Details given below.\n")
-
-    return wrapper
-
-
 def search_fingerprint_firebase(fingerprint):
     print('Searching fingerprint in firebase')
     return db.reference('fingerprints/' + fingerprint).get()
 
-@catch_no_connection
+
 def add_fingerprint(fingerprint, user):
     
     # Si la huella insertada no está en la base de datos THEN sigue con el proceso de carga de usuario
-   
-    if search_fingerprint_firebase(fingerprint) is None:
-        fingerprints_list = []
-        for x in range(0, 5):
-            # Llama la función de lectura huella (mockeada en este caso con una random function secret.token
-            next_fingerprint = read_fingerprint()
-            if next_fingerprint:
-                fingerprints_list.append(next_fingerprint)
 
-        if fingerprints_list:
-            fingerprint_ref = db.reference('fingerprints/')
-            user_id = None
-            for key, value in user.items():
-                user_id = key
-            print('Adding new fingerprint for ', user_id)
+    fingerprints_list = [fingerprint]
+    reader.wait_fingerprint()
+    next_fingerprint = reader.enroll_fingerprint()
 
-            for i in fingerprints_list:
-                fingerprint_ref.child(i).set({
-                    'user': user_id
-                })
+    if next_fingerprint:
+        fingerprints_list.append(next_fingerprint)
 
-            # Exception Handler en caso de perdida de conexion
+    fingerprint_ref = db.reference('fingerprints/')
+    user_id = None
+    for key, value in user.items():
+        user_id = key
+    print('Adding new fingerprint for ', user_id)
 
-            # Cambiar status de Pendiente a Active en Firebase si la huella se ha creado correctamente.
-            users_ref = db.reference('users/')
-            user_pending = users_ref.child(user_id)
-            user_pending.update({'status':'ACTIVE' })
-            print('Status changed to Active')
+    for i in fingerprints_list:
+        fingerprint_ref.child(i).set({
+            'user': user_id
+        })
+
+    # Cambiar status de Pendiente a Active en Firebase si la huella se ha creado correctamente.
+    users_ref = db.reference('users/')
+    user_pending = users_ref.child(user_id)
+    user_pending.update({'status':'ACTIVE' })
+    print('Status changed to Active')
 
 
-def search_fingerprint_local(fingerprint, local_db):
+def search_fingerprint_local(fingerprint):
     print('Searching fingerprint in local db')
     finger_db = local_db.fingerprints
     return finger_db.find_one({'_id': fingerprint})
@@ -97,7 +81,7 @@ def add_log_firebase(hash, user):
     })
 
 
-def add_log_local(user, hash, user_id, local_db):
+def add_log_local(user, hash, user_id):
     print('Adding local log')
     log_data = create_log_data(hash, user_id, '', '', uuid.uuid1())  # TODO
 
@@ -123,26 +107,21 @@ def search_user_by_id(id):
     return user_found
 
 
-def enter_fingerprint(fingerprint, db):
+def enter_fingerprint(fingerprint):
     if validate_connection():
         user_id = search_fingerprint_firebase(fingerprint)
     else:
-        user_id = search_fingerprint_local(fingerprint, db)
+        user_id = search_fingerprint_local(fingerprint)
     print('user id: ', user_id)
 
     if user_id:
-        # En esta linea hay que llamar la function que abre la puerta. Luego se carga el log etc. Asi el usuario no se queda esperando mas tiempo en la puerta
         print('Opening door to {}'.format(user_id))
-        RELAIS_1_GPIO = 17
-        GPIO.setup(RELAIS_1_GPIO, GPIO.OUT) # GPIO Assign mode
-        GPIO.output(RELAIS_1_GPIO, GPIO.LOW) # out
-        time.sleep(1)
-        GPIO.output(RELAIS_1_GPIO, GPIO.HIGH) # on ñ.
+        open_door()
 
         if validate_connection():
             add_log_firebase(fingerprint, user_id)
         else:
-            add_log_local(None, fingerprint, user_id, db)
+            add_log_local(None, fingerprint, user_id)
         return 'OK'
 
     else:
@@ -151,15 +130,16 @@ def enter_fingerprint(fingerprint, db):
         if validate_connection() and pending_user:
             add_fingerprint(fingerprint, pending_user)
             return 'OK - Usuario agregado en Firebase'
-
-        elif pending_user is None:
-            print('Blocking door')
-
-            if validate_connection():
-                add_log_firebase(fingerprint, None)
-            else:
-                add_log_local(None, fingerprint, None, db)
+        else:
             return 'ERROR'
+
+
+def open_door():
+    relais_1_gpio = 17
+    GPIO.setup(relais_1_gpio, GPIO.OUT)  # GPIO Assign mode
+    GPIO.output(relais_1_gpio, GPIO.LOW)  # out
+    time.sleep(1)
+    GPIO.output(relais_1_gpio, GPIO.HIGH)  # on ñ.
 
 
 def validate_pending_user():
@@ -181,8 +161,14 @@ def validate_connection():
 
 
 def read_fingerprint():
-    reader = FingerprintReader()
-    return reader.wait_for_fingerprint()
+    reader.wait_fingerprint()
+
+    pending_user = validate_pending_user()
+
+    if pending_user:
+        return reader.enroll_fingerprint()
+    else:
+        return reader.search_fingerprint()
 
 
 def execute():
@@ -190,16 +176,21 @@ def execute():
         fingerprint = read_fingerprint()
 
         if fingerprint:
-            enter_fingerprint(fingerprint, local_db)
+            enter_fingerprint(fingerprint)
+        else:
+            print('Blocking door')
+
+            if validate_connection():
+                add_log_firebase(fingerprint, None)
+            else:
+                add_log_local(None, fingerprint, None)
+            return 'ERROR'
 
 
 client = MongoClient('localhost', 27020)
 local_db = client['cda']
 
 authenticate()
-# fingerprint = secrets.token_hex(nbytes=16)
-#fingerprint = read_fingerprint()
-#print(fingerprint)
-#enter_fingerprint(fingerprint, local_db)
+reader = FingerprintReader()
 
 execute()

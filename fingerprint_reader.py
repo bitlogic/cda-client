@@ -10,48 +10,41 @@ class FingerprintReader:
     def __init__(self):
         self.f = self.initialize_sensor()
 
-    def wait_for_fingerprint(self):
-        ## Tries to search the finger and calculate hash
-        try:
-            print('Waiting for finger...')
 
-            ## Wait that finger is read
-            while not self.f.readImage():
-                pass
+    def wait_fingerprint(self):
+        print('Waiting for finger...')
 
-            ## Converts read image to characteristics and stores it in charbuffer 1
-            self.f.convertImage(FINGERPRINT_CHARBUFFER1)
+        ## Wait that finger is read
+        while not self.f.readImage():
+            pass
 
-            ## Searchs template
-            result = self.f.searchTemplate()
+    def search_fingerprint(self):
+        ## Converts read image to characteristics and stores it in charbuffer 1
+        self.f.convertImage(FINGERPRINT_CHARBUFFER1)
 
-            positionNumber = result[0]
-            accuracyScore = result[1]
+        ## Searchs template
+        result = self.f.searchTemplate()
 
-            if positionNumber == -1:
-                print('No match found!')
-                result = self.enroll_fingerprint()
-                positionNumber = result[0]
-            else:
-                print('Found template at position #' + str(positionNumber))
-                print('The accuracy score is: ' + str(accuracyScore))
+        positionNumber = result[0]
+        accuracyScore = result[1]
 
-            ## Loads the found template to charbuffer 1
-            self.f.loadTemplate(positionNumber, FINGERPRINT_CHARBUFFER1)
-
-            ## Downloads the characteristics of template loaded in charbuffer 1
-            characteristics = str(self.f.downloadCharacteristics(FINGERPRINT_CHARBUFFER1)).encode('utf-8')
-
-            ## Hashes characteristics of template
-            fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
-            print(fingerprint_hash)
-            return fingerprint_hash
-
-
-        except Exception as e:
-            print('Operation failed!')
-            print('Exception message: ' + str(e))
+        if positionNumber == -1:
+            print('No match found!')
             return None
+        else:
+            print('Found template at position #' + str(positionNumber))
+            print('The accuracy score is: ' + str(accuracyScore))
+
+        ## Loads the found template to charbuffer 1
+        self.f.loadTemplate(positionNumber, FINGERPRINT_CHARBUFFER1)
+
+        ## Downloads the characteristics of template loaded in charbuffer 1
+        characteristics = str(self.f.downloadCharacteristics(FINGERPRINT_CHARBUFFER1)).encode('utf-8')
+
+        ## Hashes characteristics of template
+        fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
+        print(fingerprint_hash)
+        return fingerprint_hash
 
     def enroll_fingerprint(self):
         print('Remove finger...')
@@ -73,7 +66,18 @@ class FingerprintReader:
         self.f.createTemplate()
 
         ## Saves template at new position number
-        return self.f.storeTemplate()
+        position_number = self.f.storeTemplate()
+
+        ## Loads the found template to charbuffer 1
+        self.f.loadTemplate(position_number, FINGERPRINT_CHARBUFFER1)
+
+        ## Downloads the characteristics of template loaded in charbuffer 1
+        characteristics = str(self.f.downloadCharacteristics(FINGERPRINT_CHARBUFFER1)).encode('utf-8')
+
+        ## Hashes characteristics of template
+        fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
+        print(fingerprint_hash)
+        return fingerprint_hash
 
     def initialize_sensor(self):
         ## Tries to initialize the sensor
