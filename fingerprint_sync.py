@@ -21,7 +21,7 @@ def sync():
     local_db.users.drop()
     users = db.reference('users/').get()
     for i in users:
-        add_user(i, users[i]['name'], users[i]['lastname'], users[i]['company'], users[i]['status'])
+        add_user(i, users[i]['name'], users[i]['lastname'], users[i]['status'])
     print('Finish user sync')
 
 
