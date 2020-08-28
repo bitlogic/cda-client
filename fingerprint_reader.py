@@ -47,6 +47,17 @@ class FingerprintReader:
         return fingerprint_hash
 
     def enroll_fingerprint(self):
+        ## Converts read image to characteristics and stores it in charbuffer 1
+        self.f.convertImage(0x01)
+
+        ## Checks if finger is already enrolled
+        result = self.f.searchTemplate()
+        positionNumber = result[0]
+
+        if (positionNumber >= 0):
+            print('Template already exists at position #' + str(positionNumber))
+            exit(0)
+
         print('Remove finger...')
         time.sleep(2)
         print('Waiting for same finger again...')

@@ -184,7 +184,7 @@ def execute():
                 add_log_firebase(fingerprint, None)
             else:
                 add_log_local(None, fingerprint, None)
-            return 'ERROR'
+
 
 
 client = MongoClient('localhost', 27020)
