@@ -38,8 +38,6 @@ class FirebaseAccess(DatabaseAccess):
         logs_ref.push({
             'datetime': str(time),
             'hash': hash,
-            'lastname': '',  # TODO
-            'name': '',
             'user': user_id
         })
 
@@ -48,14 +46,12 @@ class FirebaseAccess(DatabaseAccess):
         return user_found
 
 
-def create_log_data(hash_data, user, name, lastname, log_id):
+def create_log_data(hash_data, user, log_id):
     time = datetime.now(tz=pytz.timezone("America/Argentina/Cordoba")).isoformat("T")
     log_data = {
         "datetime": str(time),
         "hash": hash_data,
         "user": user,
-        "name": name,
-        "lastname": lastname,
         "_id": log_id
     }
     return log_data
@@ -66,11 +62,11 @@ class MongoAccess(DatabaseAccess):
     def get_fingerprint(self, fingerprint):
         print('Searching fingerprint in local db')
         finger_db = self.db.fingerprints
-        return finger_db.find_one({'_id': fingerprint})
+        return finger_db.find_one({'fingerprint': fingerprint})
 
     def add_log(self, hash, user_id):
         print('Adding local log')
-        log_data = create_log_data(hash, user_id, '', '', uuid.uuid1())  # TODO
+        log_data = create_log_data(hash, user_id, uuid.uuid1())
 
         logs_db = self.db.logs
         logs_db.insert_one(log_data)

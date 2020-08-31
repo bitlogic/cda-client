@@ -38,7 +38,7 @@ def add_user(user_id, name, lastname, company, status):
 
 def add_fingerprint(fingerprint_id, user_id):
     data = {
-        '_id': fingerprint_id,
+        'fingerprint': fingerprint_id,
         'user': user_id
     }
     local_db.fingerprints.insert_one(data)
