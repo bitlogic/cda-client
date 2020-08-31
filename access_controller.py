@@ -1,7 +1,7 @@
 import time
 import urllib.request as urllib2
 
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from database_access import FirebaseAccess, MongoAccess
 from fingerprint_reader import FingerprintReader
 
-#GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
+GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
 
 def add_fingerprint(fingerprint, user):
@@ -57,7 +57,7 @@ def enter_fingerprint(fingerprint):
 
     if user_id:
         print('Opening door to {}'.format(user_id))
-        #open_door()
+        open_door()
 
         database = get_database_access()
         database.add_log(fingerprint, user_id)
@@ -101,14 +101,14 @@ def validate_connection():
 
 
 def read_fingerprint():
-    #reader.wait_fingerprint()
+    reader.wait_fingerprint()
 
     pending_user = validate_pending_user()
 
     if pending_user:
         return reader.enroll_fingerprint()
     else:
-        raise Exception('Esta es una exception ')
+        return reader.search_fingerprint()
 
 
 def execute():
