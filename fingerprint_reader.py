@@ -1,8 +1,8 @@
 import hashlib
 import time
 
-from pyfingerprint.pyfingerprint import PyFingerprint, FINGERPRINT_CHARBUFFER2
 from pyfingerprint.pyfingerprint import FINGERPRINT_CHARBUFFER1
+from pyfingerprint.pyfingerprint import PyFingerprint, FINGERPRINT_CHARBUFFER2
 
 
 class FingerprintReader:
