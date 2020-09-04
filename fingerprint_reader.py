@@ -88,7 +88,8 @@ class FingerprintReader:
         ## Hashes characteristics of template
         fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
         print(fingerprint_hash)
-        return fingerprint_hash
+        print(position_number)
+        return fingerprint_hash, position_number
 
     def initialize_sensor(self):
         ## Tries to initialize the sensor

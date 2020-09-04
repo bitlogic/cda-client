@@ -19,16 +19,19 @@ def search_fingerprint_firebase(fingerprint):
     return db.reference('fingerprints/' + fingerprint).get()
 
 
-def add_fingerprint(fingerprint, user):
+def add_fingerprint(fingerprint, position_number, user):
     
     # Si la huella insertada no está en la base de datos THEN sigue con el proceso de carga de usuario
 
     fingerprints_list = [fingerprint]
+    position_list = [position_number]
+    
     reader.wait_fingerprint()
-    next_fingerprint = reader.enroll_fingerprint()
+    next_fingerprint, next_position_number = reader.enroll_fingerprint()
 
     if next_fingerprint:
         fingerprints_list.append(next_fingerprint)
+        position_list.append(next_position_number)
 
     fingerprint_ref = db.reference('fingerprints/')
     user_id = None
@@ -36,9 +39,10 @@ def add_fingerprint(fingerprint, user):
         user_id = key
     print('Adding new fingerprint for ', user_id)
 
-    for i in fingerprints_list:
+    for i, p in zip(fingerprints_list,position_list):
         fingerprint_ref.child(i).set({
-            'user': user_id
+            'user': user_id,
+            'position_number': p
         })
 
     # Cambiar status de Pendiente a Active en Firebase si la huella se ha creado correctamente.
@@ -107,7 +111,7 @@ def search_user_by_id(id):
     return user_found
 
 
-def enter_fingerprint(fingerprint):
+def enter_fingerprint(fingerprint, position_number):
     if validate_connection():
         user_id = search_fingerprint_firebase(fingerprint)
     else:
@@ -128,7 +132,7 @@ def enter_fingerprint(fingerprint):
         pending_user = validate_pending_user()
 
         if validate_connection() and pending_user:
-            add_fingerprint(fingerprint, pending_user)
+            add_fingerprint(fingerprint, position_number, pending_user)
             return 'OK - Usuario agregado en Firebase'
         else:
             return 'ERROR'
@@ -173,10 +177,12 @@ def read_fingerprint():
 
 def execute():
     while True:
-        fingerprint = read_fingerprint()
-
+        fingerprint, position_number = read_fingerprint()
+        type(fingerprint)
+        type(position_number)
+        
         if fingerprint:
-            enter_fingerprint(fingerprint)
+            enter_fingerprint(fingerprint, position_number)
         else:
             print('Blocking door')
 
