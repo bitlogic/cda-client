@@ -118,10 +118,12 @@ def execute():
     while True:
         try:
             fingerprint, position_number = read_fingerprint()
-            type(fingerprint)
-            type(position_number)
         except Exception as e:
             print(e)
+            if e.args[0] == 'The received packet is corrupted (the checksum is wrong)!':
+                print('Initializing the reader again')
+                global reader
+                reader = FingerprintReader()
             continue
 
         if fingerprint:
