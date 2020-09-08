@@ -44,7 +44,7 @@ def add_fingerprint(fingerprint_id, user_id):
     local_db.fingerprints.insert_one(data)
 
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('localhost', 27020)
 local_db = client['cda']
 
 authenticate()

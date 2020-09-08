@@ -4,9 +4,6 @@ import time
 from pyfingerprint.pyfingerprint import FINGERPRINT_CHARBUFFER1
 from pyfingerprint.pyfingerprint import PyFingerprint, FINGERPRINT_CHARBUFFER2
 
-import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-
 class FingerprintReader:
 
     def __init__(self):
