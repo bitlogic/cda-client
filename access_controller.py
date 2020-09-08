@@ -1,22 +1,16 @@
+import time
 import urllib.request as urllib2
-import uuid
-from datetime import datetime
-
-import pytz
-from firebase_admin import credentials
-from firebase_admin import db
-import firebase_admin
-from pymongo import MongoClient
-from fingerprint_reader import FingerprintReader
 
 import RPi.GPIO as GPIO
-import time
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+from pymongo import MongoClient
+
+from database_access import FirebaseAccess, MongoAccess
+from fingerprint_reader import FingerprintReader
+
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
-
-
-def search_fingerprint_firebase(fingerprint):
-    print('Searching fingerprint in firebase')
-    return db.reference('fingerprints/' + fingerprint).get()
 
 
 def add_fingerprint(fingerprint, position_number, user):
@@ -25,7 +19,7 @@ def add_fingerprint(fingerprint, position_number, user):
 
     fingerprints_list = [fingerprint]
     position_list = [position_number]
-    
+
     reader.wait_fingerprint()
     next_fingerprint, next_position_number = reader.enroll_fingerprint()
 
@@ -52,12 +46,6 @@ def add_fingerprint(fingerprint, position_number, user):
     print('Status changed to Active')
 
 
-def search_fingerprint_local(fingerprint):
-    print('Searching fingerprint in local db')
-    finger_db = local_db.fingerprints
-    return finger_db.find_one({'_id': fingerprint})
-
-
 def authenticate():
     cred = credentials.Certificate("google_credentials.json")
     firebase_admin.initialize_app(cred, options={
@@ -65,67 +53,18 @@ def authenticate():
     })
 
 
-def add_log_firebase(hash, user):
-    print('Adding remote log')
-
-    time = datetime.now(tz=pytz.timezone("America/Argentina/Cordoba")).isoformat("T")
-
-    logs_ref = db.reference('logs')
-
-    if user:
-        user_id = user['user']
-    else:
-        user_id = ''
-    logs_ref.push({
-        'datetime': str(time),
-        'hash': hash,
-        'lastname': '',  # TODO
-        'name': '',
-        'user': user_id
-    })
-
-
-def add_log_local(user, hash, user_id):
-    print('Adding local log')
-    log_data = create_log_data(hash, user_id, '', '', uuid.uuid1())  # TODO
-
-    logs_db = local_db.logs
-    logs_db.insert_one(log_data)
-
-
-def create_log_data(hash_data, user, name, lastname, log_id):
-    time = datetime.now(tz=pytz.timezone("America/Argentina/Cordoba")).isoformat("T")
-    log_data = {
-        "datetime": str(time),
-        "hash": hash_data,
-        "user": user,
-        "name": name,
-        "lastname": lastname,
-        "_id": log_id
-    }
-    return log_data
-
-
-def search_user_by_id(id):
-    user_found = db.reference('users/' + id).get()
-    return user_found
-
-
 def enter_fingerprint(fingerprint, position_number):
-    if validate_connection():
-        user_id = search_fingerprint_firebase(fingerprint)
-    else:
-        user_id = search_fingerprint_local(fingerprint)
+    database = get_database_access()
+    user_id = database.get_fingerprint(fingerprint)
     print('user id: ', user_id)
 
     if user_id:
         print('Opening door to {}'.format(user_id))
         open_door()
 
-        if validate_connection():
-            add_log_firebase(fingerprint, user_id)
-        else:
-            add_log_local(None, fingerprint, user_id)
+        database = get_database_access()
+        database.add_log(fingerprint, user_id)
+
         return 'OK'
 
     else:
@@ -186,17 +125,21 @@ def execute():
                 global reader
                 reader = FingerprintReader()
             continue
-        
+
         if fingerprint:
             enter_fingerprint(fingerprint, position_number)
         else:
             print('Blocking door')
 
-            if validate_connection():
-                add_log_firebase(fingerprint, None)
-            else:
-                add_log_local(None, fingerprint, None)
+            database = get_database_access()
+            database.add_log(fingerprint, None)
 
+
+def get_database_access():
+    if validate_connection():
+        return firebase_access
+    else:
+        return mongo_access
 
 
 client = MongoClient('localhost', 27020)
@@ -204,5 +147,8 @@ local_db = client['cda']
 
 authenticate()
 reader = FingerprintReader()
+
+firebase_access = FirebaseAccess(db)
+mongo_access = MongoAccess(local_db)
 
 execute()
