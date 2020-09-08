@@ -57,13 +57,7 @@ class FingerprintReader:
         positionNumber = result[0]
 
         if (positionNumber >= 0):
-            print('Template already exists at position #' + str(positionNumber))
-
-            relais_1_gpio = 17
-            GPIO.setup(relais_1_gpio, GPIO.OUT)  # GPIO Assign mode
-            GPIO.output(relais_1_gpio, GPIO.LOW)  # out
-            time.sleep(5)
-            GPIO.output(relais_1_gpio, GPIO.HIGH)  # on ñ.
+            raise Exception('Template already exists at position #' + str(positionNumber))
 
         print('Remove finger...')
         time.sleep(2)
