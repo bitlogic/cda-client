@@ -81,7 +81,7 @@ def open_door():
     relais_1_gpio = 17
     GPIO.setup(relais_1_gpio, GPIO.OUT)  # GPIO Assign mode
     GPIO.output(relais_1_gpio, GPIO.LOW)  # out
-    time.sleep(1)
+    time.sleep(5)
     GPIO.output(relais_1_gpio, GPIO.HIGH)  # on ñ.
 
 

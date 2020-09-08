@@ -4,6 +4,8 @@ import time
 from pyfingerprint.pyfingerprint import FINGERPRINT_CHARBUFFER1
 from pyfingerprint.pyfingerprint import PyFingerprint, FINGERPRINT_CHARBUFFER2
 
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
 class FingerprintReader:
 
@@ -30,7 +32,7 @@ class FingerprintReader:
 
         if positionNumber == -1:
             print('No match found!')
-            return None
+            return None, None
         else:
             print('Found template at position #' + str(positionNumber))
             print('The accuracy score is: ' + str(accuracyScore))
@@ -56,7 +58,12 @@ class FingerprintReader:
 
         if (positionNumber >= 0):
             print('Template already exists at position #' + str(positionNumber))
-            exit(0)
+
+            relais_1_gpio = 17
+            GPIO.setup(relais_1_gpio, GPIO.OUT)  # GPIO Assign mode
+            GPIO.output(relais_1_gpio, GPIO.LOW)  # out
+            time.sleep(5)
+            GPIO.output(relais_1_gpio, GPIO.HIGH)  # on ñ.
 
         print('Remove finger...')
         time.sleep(2)
