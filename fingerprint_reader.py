@@ -44,7 +44,7 @@ class FingerprintReader:
         ## Hashes characteristics of template
         fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
         print(fingerprint_hash)
-        return fingerprint_hash
+        return fingerprint_hash, positionNumber
 
     def enroll_fingerprint(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
