@@ -106,13 +106,15 @@ def validate_connection():
 def read_fingerprint():
     reader.wait_fingerprint()
 
-    pending_user = validate_pending_user()
-
-    if pending_user:
-        return reader.enroll_fingerprint()
+    fingerprint, position_number =  reader.search_fingerprint()
+       
+    if fingerprint:
+        return fingerprint, position_number
     else:
-        return reader.search_fingerprint()
-
+        pending_user = validate_pending_user()
+        if pending_user:
+            return reader.enroll_fingerprint()
+    
 
 def execute():
     while True:
@@ -136,9 +138,9 @@ def execute():
 
 
 def get_database_access():
-    if validate_connection():
-        return firebase_access
-    else:
+   # if validate_connection():
+      #  return firebase_access
+   # else:
         return mongo_access
 
 
