@@ -45,10 +45,15 @@ class FingerprintReader:
         print(fingerprint_hash)
         return fingerprint_hash, positionNumber
 
-    def enroll_fingerprint(self):
+    def second_enroll(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
-        self.f.convertImage(0x01)
+        self.f.convertImage(FINGERPRINT_CHARBUFFER1)
+        self.enroll_fingerprint()
 
+    def first_enroll(self):
+        self.enroll_fingerprint()
+
+    def enroll_fingerprint(self):
         ## Checks if finger is already enrolled
         result = self.f.searchTemplate()
         positionNumber = result[0]

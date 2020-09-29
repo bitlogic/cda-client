@@ -21,7 +21,7 @@ def add_fingerprint(fingerprint, position_number, user):
     position_list = [position_number]
 
     reader.wait_fingerprint()
-    next_fingerprint, next_position_number = reader.enroll_fingerprint()
+    next_fingerprint, next_position_number = reader.second_enroll()
 
     if next_fingerprint:
         fingerprints_list.append(next_fingerprint)
@@ -53,7 +53,7 @@ def authenticate():
     })
 
 
-def enter_fingerprint(fingerprint, position_number):
+def enter_fingerprint(fingerprint):
     database = get_database_access()
     user_id = database.get_fingerprint(fingerprint)
     print('user id: ', user_id)
@@ -68,13 +68,7 @@ def enter_fingerprint(fingerprint, position_number):
         return 'OK'
 
     else:
-        pending_user = validate_pending_user()
-
-        if validate_connection() and pending_user:
-            add_fingerprint(fingerprint, position_number, pending_user)
-            return 'OK - Usuario agregado en Firebase'
-        else:
-            return 'ERROR'
+        return 'ERROR'
 
 
 def open_door():
@@ -106,20 +100,24 @@ def validate_connection():
 def read_fingerprint():
     reader.wait_fingerprint()
 
-    fingerprint, position_number =  reader.search_fingerprint()
+    fingerprint, _ =  reader.search_fingerprint()
        
     if fingerprint:
-        return fingerprint, position_number
+        return 1, fingerprint
     else:
         pending_user = validate_pending_user()
         if pending_user:
-            return reader.enroll_fingerprint()
+            new_fingerprint, new_position_number = reader.first_enroll()
+            add_fingerprint(new_fingerprint, new_position_number, pending_user)
+            return 2, new_fingerprint
+
+    return 3, None
     
 
 def execute():
     while True:
         try:
-            fingerprint, position_number = read_fingerprint()
+            status, fingerprint = read_fingerprint()
         except Exception as e:
             print(e)
             if e.args[0] == 'The received packet is corrupted (the checksum is wrong)!':
@@ -128,9 +126,9 @@ def execute():
                 reader = FingerprintReader()
             continue
 
-        if fingerprint:
-            enter_fingerprint(fingerprint, position_number)
-        else:
+        if status == 1:
+            enter_fingerprint(fingerprint)
+        elif status == 3:
             print('Blocking door')
 
             database = get_database_access()
