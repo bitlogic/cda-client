@@ -48,10 +48,10 @@ class FingerprintReader:
     def second_enroll(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
         self.f.convertImage(FINGERPRINT_CHARBUFFER1)
-        self.enroll_fingerprint()
+        return self.enroll_fingerprint()
 
     def first_enroll(self):
-        self.enroll_fingerprint()
+        return self.enroll_fingerprint()
 
     def enroll_fingerprint(self):
         ## Checks if finger is already enrolled
