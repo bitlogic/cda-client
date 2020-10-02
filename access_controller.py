@@ -90,10 +90,8 @@ def validate_pending_user():
 def validate_connection():
     try:
         urllib2.urlopen('http://216.58.192.142', timeout=3)
-        print('INTERNET OK')
         return True
     except urllib2.URLError as err:
-        print('NO INTERNET')
         return False
 
 

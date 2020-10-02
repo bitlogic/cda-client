@@ -47,10 +47,12 @@ class FingerprintReader:
 
     def second_enroll(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
+        print('Second enroll')
         self.f.convertImage(FINGERPRINT_CHARBUFFER1)
         return self.enroll_fingerprint()
 
     def first_enroll(self):
+        print('First enroll')
         return self.enroll_fingerprint()
 
     def enroll_fingerprint(self):
@@ -90,8 +92,7 @@ class FingerprintReader:
 
         ## Hashes characteristics of template
         fingerprint_hash = hashlib.sha256(characteristics).hexdigest()
-        print(fingerprint_hash)
-        print(position_number)
+        print('Fingerprint saved', fingerprint_hash, 'in position', position_number)
         return fingerprint_hash, position_number
 
     def initialize_sensor(self):
