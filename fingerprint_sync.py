@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from pymongo import MongoClient
+import datetime
 
 
 def authenticate():
@@ -23,6 +24,10 @@ def sync():
     for i in users:
         add_user(i, users[i]['name'], users[i]['lastname'], users[i]['company'], users[i]['status'])
     print('Finish user sync')
+
+    data = {'date': datetime.datetime.now()}
+    local_db.syncs.insert_one(data)
+    print('Change sync date')
 
 
 def add_user(user_id, name, lastname, company, status):
