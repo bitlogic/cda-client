@@ -4,6 +4,8 @@ from firebase_admin import db
 from pymongo import MongoClient
 import datetime
 
+from delete_fingerprint import delete
+
 
 def authenticate():
     cred = credentials.Certificate("google_credentials.json")
@@ -13,6 +15,8 @@ def authenticate():
 
 
 def sync():
+    check_inactive_users()
+
     local_db.fingerprints.drop()
     fingerprints = db.reference('fingerprints/').get()
     for i in fingerprints:
@@ -28,6 +32,22 @@ def sync():
     data = {'date': datetime.datetime.now()}
     local_db.syncs.insert_one(data)
     print('Change sync date')
+
+
+def check_inactive_users():
+    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
+    position_numbers = []
+    for iu in inactive_users:
+        user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
+        for fing in user_fingerprints:
+            position_numbers.append(user_fingerprints[fing]['position_number'])
+            db.reference('fingerprints/' + fing).delete() #borro de firebase
+        print('Fingerprints deleted from firebase')
+
+    if delete(position_numbers):
+        print('Fingerprints deleted in sensor')
+    else:
+        print('Error deleting fingerprints in sensor')
 
 
 def add_user(user_id, name, lastname, company, status):
@@ -49,7 +69,7 @@ def add_fingerprint(fingerprint_id, user_id):
     local_db.fingerprints.insert_one(data)
 
 
-client = MongoClient('localhost', 27020)
+client = MongoClient('localhost', 27017)
 local_db = client['cda']
 
 authenticate()
