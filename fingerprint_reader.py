@@ -20,7 +20,8 @@ class FingerprintReader:
     def search_fingerprint(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
         self.f.convertImage(FINGERPRINT_CHARBUFFER1)
-
+        global globalcharbuffer
+        globalcharbuffer = FINGERPRINT_CHARBUFFER1
         ## Searchs template
         result = self.f.searchTemplate()
 
@@ -47,7 +48,7 @@ class FingerprintReader:
 
     def enroll_fingerprint(self):
         ## Converts read image to characteristics and stores it in charbuffer 1
-        self.f.convertImage(0x01)
+        self.f.convertImage(globalcharbuffer)
 
         ## Checks if finger is already enrolled
         result = self.f.searchTemplate()
