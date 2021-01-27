@@ -81,16 +81,16 @@ def open_door():
     relais_1_gpio = 17
     GPIO.setup(relais_1_gpio, GPIO.OUT)  # GPIO Assign mode
     GPIO.output(relais_1_gpio, GPIO.LOW)  # out
-    time.sleep(5)
+    time.sleep(2)
     GPIO.output(relais_1_gpio, GPIO.HIGH)  # on ñ.
 
 
 def validate_pending_user():
-    if validate_connection():
+   # if validate_connection():
         return db.reference('users/').order_by_child('status').equal_to('PENDING').get()
-    else:
-        print('NO Internet - No se pudo validar usuario pendiente')
-        return None
+  #  else:
+    #    print('NO Internet - No se pudo validar usuario pendiente')
+     #   return None
 
 
 def validate_connection():
