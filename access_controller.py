@@ -86,11 +86,13 @@ def open_door():
 
 
 def validate_pending_user():
-   # if validate_connection():
-        return db.reference('users/').order_by_child('status').equal_to('PENDING').get()
-  #  else:
-    #    print('NO Internet - No se pudo validar usuario pendiente')
-     #   return None
+   
+    pending_user = db.reference('users/').order_by_child('status').equal_to('PENDING').get()
+        if pending_user:
+            return pending_user
+        else:
+           print('NO Internet - No se pudo validar usuario pendiente')
+        return None
 
 
 def validate_connection():
@@ -105,13 +107,12 @@ def validate_connection():
 
 def read_fingerprint():
     reader.wait_fingerprint()
+    fingerprint, position_number = reader.search_fingerprint()
 
-    pending_user = validate_pending_user()
-
-    if pending_user:
+    if fingerprint:
+        return fingerprint, position_number
+    elif validate_pending_user():
         return reader.enroll_fingerprint()
-    else:
-        return reader.search_fingerprint()
 
 
 def execute():
