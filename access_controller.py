@@ -88,11 +88,11 @@ def open_door():
 def validate_pending_user():
    
     pending_user = db.reference('users/').order_by_child('status').equal_to('PENDING').get()
-        if pending_user:
-            return pending_user
-        else:
-           print('NO Internet - No se pudo validar usuario pendiente')
-        return None
+    if pending_user:
+        return pending_user
+    else:
+        print('NO Internet - No se pudo validar usuario pendiente')
+    return None
 
 
 def validate_connection():
