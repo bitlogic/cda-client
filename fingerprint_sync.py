@@ -46,7 +46,7 @@ def check_inactive_users():
             
 
     position_numbers.sort()
-  
+    print(position_numbers)
     # Borra en el sensor
     for position_number in position_numbers:
         print(position_number)
