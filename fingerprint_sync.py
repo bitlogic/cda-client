@@ -67,8 +67,7 @@ def check_inactive_users():
         print (next_fingerprints)
         values = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get().values
         print(values)
-        fingerprintlist = list(next_fingerprints.items())
-        print(fingerprintlist)
+    
         # for next_fingerprint, position_number, user in next_fingerprints:
         #     print(next_fingerprint, position_number, user)
             # db.reference('fingerprints/').child(next_fingerprint).update(
