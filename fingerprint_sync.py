@@ -37,7 +37,7 @@ def sync():
 def check_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
-
+    print(inactive_users)
   
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
