@@ -14,7 +14,7 @@ from pyfingerprint.pyfingerprint import PyFingerprint
 ## Deletes a finger from sensor
 ##
 
-def delete(position_numbers):
+def delete(position_number):
     ## Tries to initialize the sensor
     try:
         f = PyFingerprint('/dev/ttyUSB0', 57600, 0xFFFFFFFF, 0x00000000)
@@ -33,13 +33,13 @@ def delete(position_numbers):
 
     ## Tries to delete the template of the finger
     try:
-        for position_number in position_numbers:
+       
             position_number = int(position_number)
 
             if not f.deleteTemplate(position_number):
                 return False
-
-        return True
+            else:
+                return True
 
     except Exception as e:
         print('Operation failed!')

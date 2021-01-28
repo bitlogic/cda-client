@@ -37,17 +37,44 @@ def sync():
 def check_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
+    all_position_numbers = []
+  
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
-            db.reference('fingerprints/' + fing).delete() #borro de firebase
-        print('Fingerprints deleted from firebase')
+            
 
-    if delete(position_numbers):
-        print('Fingerprints deleted in sensor')
-    else:
-        print('Error deleting fingerprints in sensor')
+    position_numbers.sort()
+  
+    # Borra en el sensor
+    for position_number in position_numbers:
+        print(position_number)
+        if delete(position_number):
+            print('Fingerprints deleted in sensor')
+
+        else:
+            print('Error deleting fingerprints in sensor')
+
+        # Borra en Firebase
+        user_fingerprint = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
+        db.reference('fingerprints/' + user_fingerprint).delete()
+
+        # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
+        next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
+        print(next_fingerprints)
+        for next_fingerprint in next_fingerprints:
+            db.reference('fingerprints/').child(next_fingerprint).update(
+                {
+                    'position_number': next_fingerprint.position_number -1
+                }
+            )
+
+        # Decrease all position_numbers of inactive users by 1
+        
+        position_numbers = [x - 1 for x in position_numbers]
+
+    
 
 
 def add_user(user_id, name, lastname, company, status):
