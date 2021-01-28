@@ -57,9 +57,9 @@ def check_inactive_users():
         #     print('Error deleting fingerprints in sensor')
 
         # Borra en Firebase
-        user_fingerprint = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
-        print(user_fingerprint)
-        user_fingerprint.delete()
+        fingerprintdata = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
+        for key in fingerprintdata:
+            db.reference('fingerprints/').child(key).delete()
         return
 
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
