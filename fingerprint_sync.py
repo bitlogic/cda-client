@@ -76,7 +76,8 @@ def check_inactive_users():
 
 
         position_numbers = [x - 1 for x in position_numbers]
-        print(position_number)
+        print(position_numbers)
+        print(position_numbers)
 
     
 
