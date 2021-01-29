@@ -38,8 +38,6 @@ def check_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
   
-
-
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
         print(user_fingerprints)
@@ -47,7 +45,7 @@ def check_inactive_users():
             position_numbers.append(user_fingerprints[fing]['position_number'])
             
 
-    position_numbers = position_numbers.sort()
+    position_numbers.sort()
  
     # Borra en el sensor
     for position_number in position_numbers:
