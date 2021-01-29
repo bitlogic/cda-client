@@ -57,7 +57,8 @@ def check_inactive_users():
 
         # Borra en Firebase
         fingerprintdata = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
-        print ("Fingerprintdata: " + fingerprintdata)
+        print("Fingerprint data")
+        print (fingerprintdata)
         for key in fingerprintdata:
             db.reference('fingerprints/').child(key).delete()
     
@@ -72,10 +73,10 @@ def check_inactive_users():
             )
 
         # Decrease all position_numbers of inactive users by 1
-
-        print("Before scaling: " + position_numbers)
+        print("Before Scaling")
+        print(position_numbers)
         position_numbers = [x - 1 for x in position_numbers]
-        print("After scaling: " + position_numbers)
+        print(position_numbers)
 
     
 
