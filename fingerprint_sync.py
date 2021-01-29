@@ -37,7 +37,7 @@ def sync():
 def check_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
-    print(inactive_users)
+  
   
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
@@ -46,10 +46,10 @@ def check_inactive_users():
             
 
     position_numbers.sort()
-    print(position_numbers)
+   
     # Borra en el sensor
     for position_number in position_numbers:
-        print(position_number)
+     
         # if delete(position_number):
         #     print('Fingerprints deleted in sensor')
 
@@ -65,15 +65,11 @@ def check_inactive_users():
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
         next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
         for key, value in next_fingerprints.items():
-            print(key)
-            print(value['position_number'])
-        # for next_fingerprint, position_number, user in next_fingerprints:
-        #     print(next_fingerprint, position_number, user)
-            # db.reference('fingerprints/').child(next_fingerprint).update(
-            #     {
-            #         'position_number': next_fingerprint.position_number -1
-            #     }
-            # )
+            db.reference('fingerprints/').child(key).update(
+                {
+                    'position_number': value['position_number'] -1
+                }
+            )
 
         # Decrease all position_numbers of inactive users by 1
 
