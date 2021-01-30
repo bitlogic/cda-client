@@ -112,5 +112,5 @@ def check_inactive_users():
 system('clear')
 authenticate()
 # sync()
-inactive_users = db.reference('users/').order_by_child('status').equal_to('HOLA').get():
+inactive_users = db.reference('users/').order_by_child('status').equal_to('HOLA').get()
 print(inactive_users)
