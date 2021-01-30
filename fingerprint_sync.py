@@ -46,12 +46,13 @@ def check_inactive_users():
 
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
-
+    
+    position_numbers.sort()
    
     while position_numbers:
 
         position_number = position_numbers.pop(0)
-
+        print(position_number)
          # Borra en el sensor
 
 
