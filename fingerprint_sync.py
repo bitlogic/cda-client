@@ -54,14 +54,15 @@ def delete_inactive_fingerprints():
 
         position_number = position_numbers.pop(0)
         print(position_number)
+
          # Borra en el sensor
 
 
-        # if delete(position_number):
-        #     print('Fingerprints deleted in sensor')
+        if delete(position_number):
+            print('Fingerprints deleted in sensor')
 
-        # else:
-        #     print('Error deleting fingerprints in sensor')
+        else:
+            print('Error deleting fingerprints in sensor')
 
         # Borra en Firebase
         
@@ -80,7 +81,8 @@ def delete_inactive_fingerprints():
                     'position_number': value['position_number'] -1
                 }
             )
-
+        # Reduce los position_numbers de -1
+        
         position_numbers = [x - 1 for x in position_numbers]
     
 
