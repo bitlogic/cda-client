@@ -34,7 +34,7 @@ def sync():
     # local_db.syncs.insert_one(data)
     # print('Change sync date')
 
-    
+
 def get_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
@@ -45,6 +45,7 @@ def get_inactive_users():
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
             position_numbers.sort()
+            print(position_numbers)
             return position_numbers
 
 def check_inactive_users():
