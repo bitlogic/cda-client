@@ -37,7 +37,7 @@ def sync():
 
 def check_inactive_users():
    
-    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get():
+    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
   
     for iu in inactive_users:
