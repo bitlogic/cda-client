@@ -35,7 +35,9 @@ def sync():
     # print('Change sync date')
 
 
-def get_inactive_users():
+def check_inactive_users():
+    
+    
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
   
@@ -44,16 +46,15 @@ def get_inactive_users():
 
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
-            
-        position_numbers.sort()
-        print(position_numbers)
-        return position_numbers
 
-def check_inactive_users():
    
-    # Borra en el sensor
-    for position_number in get_inactive_users():
-        print(position_number)
+    while position_numbers:
+
+        position_number = position_numbers.pop(0)
+
+         # Borra en el sensor
+
+
         # if delete(position_number):
         #     print('Fingerprints deleted in sensor')
 
@@ -61,13 +62,14 @@ def check_inactive_users():
         #     print('Error deleting fingerprints in sensor')
 
         # Borra en Firebase
+        
         fingerprintdata = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
         for key in fingerprintdata:
             db.reference('fingerprints/').child(key).delete()
          
-    
 
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
+
         next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
         for key, value in next_fingerprints.items():
            
@@ -77,12 +79,7 @@ def check_inactive_users():
                 }
             )
 
-        inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
-        for iu in inactive_users:
-            user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
-            if not user_fingerprints:
-                print("Exiting")
-                return
+        position_numbers = [x - 1 for x in position_numbers]
     
 
 
