@@ -36,11 +36,16 @@ def sync():
 
 
 def check_inactive_users():
-    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
+   
+    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get():
     position_numbers = []
   
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
+        if user_fingerprints: # Si no hay user_fingerprints --> Salir 
+            continue
+        else:
+            return
 
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
@@ -78,11 +83,7 @@ def check_inactive_users():
             #     }
             # )
 
-        # Decrease all position_numbers of inactive users by 1
-        print("Before Scaling")
-        print(position_numbers)
-        position_numbers = [x - 1 for x in position_numbers]
-        print(position_numbers)
+        check_inactive_users()
 
     
 
@@ -110,4 +111,6 @@ def check_inactive_users():
 # local_db = client['cda']
 system('clear')
 authenticate()
-sync()
+# sync()
+inactive_users = db.reference('users/').order_by_child('status').equal_to('HOLA').get():
+print(inactive_users)
