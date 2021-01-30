@@ -16,7 +16,8 @@ def authenticate():
 
 
 def sync():
-    check_inactive_users()
+    delete_inactive_fingerprints()
+    
 
     # local_db.fingerprints.drop()
     # fingerprints = db.reference('fingerprints/').get()
@@ -35,7 +36,7 @@ def sync():
     # print('Change sync date')
 
 
-def check_inactive_users():
+def delete_inactive_fingerprints():
     
     
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
@@ -82,6 +83,14 @@ def check_inactive_users():
 
         position_numbers = [x - 1 for x in position_numbers]
     
+
+def delete_inactive_users ():
+
+    inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
+    for key in inactive_users:
+            db.reference('users/').child(key).delete()
+
+
 
 
 # def add_user(user_id, name, lastname, company, status):
