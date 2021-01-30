@@ -45,6 +45,8 @@ def check_inactive_users():
         if user_fingerprints: # Si no hay user_fingerprints --> Salir 
             continue
         else:
+            # Delete Inactive Users
+           
             return
 
         for fing in user_fingerprints:
@@ -63,25 +65,20 @@ def check_inactive_users():
 
         # Borra en Firebase
         fingerprintdata = db.reference('fingerprints/').order_by_child('position_number').equal_to(position_number).get()
-        print("Fingerprint data")
-        print (fingerprintdata)
         for key in fingerprintdata:
-            # db.reference('fingerprints/').child(key).delete()
-            print("Key to delete")
-            print(key)
+            db.reference('fingerprints/').child(key).delete()
+         
     
 
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
         next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
         for key, value in next_fingerprints.items():
-            print("Key Value to shift back")
-            print(key)
-            print(value['position_number'])
-            # db.reference('fingerprints/').child(key).update(
-            #     {
-            #         'position_number': value['position_number'] -1
-            #     }
-            # )
+           
+            db.reference('fingerprints/').child(key).update(
+                {
+                    'position_number': value['position_number'] -1
+                }
+            )
 
         check_inactive_users()
 
@@ -111,6 +108,4 @@ def check_inactive_users():
 # local_db = client['cda']
 system('clear')
 authenticate()
-# sync()
-inactive_users = db.reference('users/').order_by_child('status').equal_to('HOLA').get()
-print(bool(inactive_users))
+sync()
