@@ -3,6 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import db
 from pymongo import MongoClient
 import datetime
+from os import system, name
 
 from delete_fingerprint import delete
 
@@ -60,17 +61,19 @@ def check_inactive_users():
         print("Fingerprint data")
         print (fingerprintdata)
         for key in fingerprintdata:
-            db.reference('fingerprints/').child(key).delete()
+            # db.reference('fingerprints/').child(key).delete()
+            print("Key to delete")
+            print(key)
     
 
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
-        next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
-        for key, value in next_fingerprints.items():
-            db.reference('fingerprints/').child(key).update(
-                {
-                    'position_number': value['position_number'] -1
-                }
-            )
+        # next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
+        # for key, value in next_fingerprints.items():
+        #     db.reference('fingerprints/').child(key).update(
+        #         {
+        #             'position_number': value['position_number'] -1
+        #         }
+        #     )
 
         # Decrease all position_numbers of inactive users by 1
         print("Before Scaling")
@@ -102,6 +105,6 @@ def check_inactive_users():
 
 # client = MongoClient('localhost', 27017)
 # local_db = client['cda']
-
+system('clear')
 authenticate()
 sync()
