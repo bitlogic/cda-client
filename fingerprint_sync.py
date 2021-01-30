@@ -34,9 +34,8 @@ def sync():
     # local_db.syncs.insert_one(data)
     # print('Change sync date')
 
-
-def check_inactive_users():
-   
+    
+def get_inactive_users():
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     position_numbers = []
   
@@ -45,11 +44,13 @@ def check_inactive_users():
 
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
-            
-    position_numbers.sort()
+            position_numbers.sort()
+            return position_numbers
+
+def check_inactive_users():
    
     # Borra en el sensor
-    for position_number in position_numbers:
+    for position_number in get_inactive_users():
         print(position_number)
         # if delete(position_number):
         #     print('Fingerprints deleted in sensor')
@@ -73,7 +74,7 @@ def check_inactive_users():
                     'position_number': value['position_number'] -1
                 }
             )
-        
+
         inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
         for iu in inactive_users:
             user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
