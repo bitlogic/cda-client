@@ -42,11 +42,6 @@ def check_inactive_users():
   
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
-        print(bool(user_fingerprints))
-        print(user_fingerprints)
-        if not bool(user_fingerprints): # Si no hay user_fingerprints --> Salir 
-            print("Saliendo")
-            return
 
         for fing in user_fingerprints:
             position_numbers.append(user_fingerprints[fing]['position_number'])
@@ -78,9 +73,13 @@ def check_inactive_users():
                     'position_number': value['position_number'] -1
                 }
             )
-
-        check_inactive_users()
-
+        
+        inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
+        for iu in inactive_users:
+            user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
+            if not user_fingerprints:
+                print("Exiting")
+                return
     
 
 
