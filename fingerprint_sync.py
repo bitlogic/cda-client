@@ -42,6 +42,7 @@ def check_inactive_users():
   
     for iu in inactive_users:
         user_fingerprints = db.reference('fingerprints/').order_by_child('user').equal_to(iu).get()
+        print(bool(user_fingerprints))
         if not user_fingerprints: # Si no hay user_fingerprints --> Salir 
             return
 
