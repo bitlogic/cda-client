@@ -63,6 +63,7 @@ def delete_inactive_fingerprints():
 
         else:
             print('Error deleting fingerprints in sensor')
+            return
 
         # Borra en Firebase
         
