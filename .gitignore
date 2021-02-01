@@ -3,5 +3,6 @@
 *.pyc
 __pycache__/
 .vscode/
+.db/
 
 google_credentials.json

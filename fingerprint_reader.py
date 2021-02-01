@@ -106,3 +106,17 @@ class FingerprintReader:
         ## Gets some sensor information
         print('Currently used templates: ' + str(f.getTemplateCount()) + '/' + str(f.getStorageCapacity()))
         return f
+
+    def delete_fingerprint(self, position_numbers):
+        try:
+            for position_number in position_numbers:
+                position_number = int(position_number)
+
+                if not self.f.deleteTemplate(position_number):
+                    return False
+
+            return True
+
+        except Exception as e:
+            print('Failed in deleting fingerprints on sensor: ' + str(e))
+            return False

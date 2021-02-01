@@ -21,7 +21,13 @@ def add_fingerprint(fingerprint, position_number, user):
     position_list = [position_number]
 
     reader.wait_fingerprint()
-    next_fingerprint, next_position_number = reader.enroll_fingerprint()
+    try:
+        next_fingerprint, next_position_number = reader.enroll_fingerprint()
+    except:
+        print('There was an error trying to add fingerprints to an user')
+        reader.delete_fingerprint(position_list)
+        return
+
 
     if next_fingerprint:
         fingerprints_list.append(next_fingerprint)
