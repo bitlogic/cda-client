@@ -15,8 +15,8 @@ def authenticate():
     })
 
 
-def sync():
-    delete_inactive_fingerprints()
+# def sync():
+    
     
 
     # local_db.fingerprints.drop()
@@ -86,7 +86,7 @@ def delete_inactive_fingerprints():
         position_numbers = [x - 1 for x in position_numbers]
     
 
-def delete_inactive_users ():
+def delete_inactive_users():
 
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     for key in inactive_users:
@@ -118,4 +118,6 @@ def delete_inactive_users ():
 # local_db = client['cda']
 system('clear')
 authenticate()
-sync()
+# sync()
+delete_inactive_fingerprints()
+delete_inactive_users()
