@@ -50,9 +50,9 @@ def delete_inactive_fingerprints():
     
     position_numbers.sort()
    
-    while position_numbers:
+    for position_number in position_numbers:
 
-        position_number = position_numbers.pop(0)
+       
         print(position_number)
 
          # Borra en el sensor
