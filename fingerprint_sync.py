@@ -4,8 +4,18 @@ from firebase_admin import db
 from pymongo import MongoClient
 import datetime
 from os import system, name
-
+import psutil
 from delete_fingerprint import delete
+
+
+def kill_access_controller():
+    PROCNAME = "python.exe"
+
+for proc in psutil.process_iter():
+    # check whether the process name matches
+    if proc.name() == PROCNAME:
+        proc.kill()
+
 
 
 def authenticate():
