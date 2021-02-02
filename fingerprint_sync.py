@@ -5,16 +5,6 @@ from pymongo import MongoClient
 import datetime
 from os import system, name
 from delete_fingerprint import delete
-import psutil
-
-
-def kill_access_controller():
-    processname = "python3"
-
-    for proc in psutil.process_iter():
-        # check whether the process name matches
-        if proc.name() == processname:
-            proc.kill()
 
 
 def authenticate():
@@ -24,25 +14,25 @@ def authenticate():
     })
 
 
-# def sync():
+def sync():
     
     
 
-    # local_db.fingerprints.drop()
-    # fingerprints = db.reference('fingerprints/').get()
-    # for i in fingerprints:
-    #     add_fingerprint(i, fingerprints[i]['user'])
-    # print('Finish fingerprint sync')
+    local_db.fingerprints.drop()
+    fingerprints = db.reference('fingerprints/').get()
+    for i in fingerprints:
+        add_fingerprint(i, fingerprints[i]['user'])
+    print('Finish fingerprint sync')
 
-    # local_db.users.drop()
-    # users = db.reference('users/').get()
-    # for i in users:
-    #     add_user(i, users[i]['name'], users[i]['lastname'], users[i]['company'], users[i]['status'])
-    # print('Finish user sync')
+    local_db.users.drop()
+    users = db.reference('users/').get()
+    for i in users:
+        add_user(i, users[i]['name'], users[i]['lastname'], users[i]['company'], users[i]['status'])
+    print('Finish user sync')
 
-    # data = {'date': datetime.datetime.now()}
-    # local_db.syncs.insert_one(data)
-    # print('Change sync date')
+    data = {'date': datetime.datetime.now()}
+    local_db.syncs.insert_one(data)
+    print('Change sync date')
 
 
 def delete_inactive_fingerprints():
@@ -100,37 +90,40 @@ def delete_inactive_users():
 
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     for key in inactive_users:
-            db.reference('users/').child(key).delete()
+        db.reference('users/').child(key).update(
+                {
+                    'status': "DELETED"
+                }
+            )
 
 
 
 
-# def add_user(user_id, name, lastname, company, status):
-#     data = {
-#         '_id': user_id,
-#         'name': name,
-#         'lastname': lastname,
-#         'status': status,
-#         'company': company
-#     }
-#     local_db.users.insert_one(data)
+def add_user(user_id, name, lastname, company, status):
+    data = {
+        '_id': user_id,
+        'name': name,
+        'lastname': lastname,
+        'status': status,
+        'company': company
+    }
+    local_db.users.insert_one(data)
 
 
-# def add_fingerprint(fingerprint_id, user_id):
-#     data = {
-#         'fingerprint': fingerprint_id,
-#         'user': user_id
-#     }
-#     local_db.fingerprints.insert_one(data)
+def add_fingerprint(fingerprint_id, user_id):
+    data = {
+        'fingerprint': fingerprint_id,
+        'user': user_id
+    }
+    local_db.fingerprints.insert_one(data)
 
 
-# client = MongoClient('localhost', 27017)
-# local_db = client['cda']
+client = MongoClient('localhost', 27017)
+local_db = client['cda']
 
-kill_access_controller()
+
 system('clear')
 authenticate()
-# sync()
 delete_inactive_fingerprints()
 delete_inactive_users()
-print("Killed")
+sync()
