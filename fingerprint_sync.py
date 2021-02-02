@@ -74,17 +74,17 @@ def delete_inactive_fingerprints():
 
         # Reduce de 1 todos los siguientes all position_numbers (todos, no solo los inactivos)
 
-        next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
-        for key, value in next_fingerprints.items():
+        # next_fingerprints = db.reference('fingerprints/').order_by_child('position_number').start_at(position_number).get()
+        # for key, value in next_fingerprints.items():
            
-            db.reference('fingerprints/').child(key).update(
-                {
-                    'position_number': value['position_number'] -1
-                }
-            )
-        # Reduce los position_numbers de -1
+        #     db.reference('fingerprints/').child(key).update(
+        #         {
+        #             'position_number': value['position_number'] -1
+        #         }
+        #     )
+        # # Reduce los position_numbers de -1
         
-        position_numbers = [x - 1 for x in position_numbers]
+        # position_numbers = [x - 1 for x in position_numbers]
     
 
 def delete_inactive_users():
