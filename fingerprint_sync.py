@@ -4,18 +4,17 @@ from firebase_admin import db
 from pymongo import MongoClient
 import datetime
 from os import system, name
-import psutil
 from delete_fingerprint import delete
+import psutil
 
 
 def kill_access_controller():
-    PROCNAME = "python.exe"
+    processname = "python3"
 
-for proc in psutil.process_iter():
-    # check whether the process name matches
-    if proc.name() == PROCNAME:
-        proc.kill()
-
+    for proc in psutil.process_iter():
+        # check whether the process name matches
+        if proc.name() == processname:
+            proc.kill()
 
 
 def authenticate():
@@ -127,6 +126,8 @@ def delete_inactive_users():
 
 # client = MongoClient('localhost', 27017)
 # local_db = client['cda']
+
+kill_access_controller()
 system('clear')
 authenticate()
 # sync()
