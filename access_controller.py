@@ -137,8 +137,8 @@ def execute():
         else:
             print('Blocking door')
 
-            database = get_database_access()
-            database.add_log(fingerprint, None)
+            # database = get_database_access()
+            # database.add_log(fingerprint, None)
 
 
 def get_database_access():
