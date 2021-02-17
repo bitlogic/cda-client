@@ -66,11 +66,8 @@ def delete_inactive_users():
 
     inactive_users = db.reference('users/').order_by_child('status').equal_to('INACTIVE').get()
     for key in inactive_users:
-        db.reference('users/').child(key).update(
-                {
-                    'status': "DELETED"
-                }
-            )
+        db.reference('users/').child(key).delete()
+            
 system('clear')
 authenticate()
 delete_inactive_fingerprints()
