@@ -16,18 +16,11 @@ GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 def add_fingerprint(fingerprint, position_number, user):
     
     # Si la huella insertada no está en la base de datos THEN sigue con el proceso de carga de usuario
-
     fingerprints_list = [fingerprint]
     position_list = [position_number]
 
     reader.wait_fingerprint()
-    try:
-        next_fingerprint, next_position_number = reader.enroll_fingerprint()
-    except:
-        print('There was an error trying to add fingerprints to an user')
-        reader.delete_fingerprint(position_list)
-        return
-
+    next_fingerprint, next_position_number = reader.enroll_fingerprint()
 
     if next_fingerprint:
         fingerprints_list.append(next_fingerprint)
