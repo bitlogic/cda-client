@@ -7,7 +7,7 @@ from os import system
 
 
 def authenticate():
-    cred = credentials.Certificate('google_credentiales.json')
+    cred = credentials.Certificate('/home/pi/Documents/cda-client/google_credentiales.json')
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://cda-bithouse.firebaseio.com/',
     })
