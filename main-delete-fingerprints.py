@@ -1,13 +1,13 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-import datetime
-from os import system, name
+from os import system, getenv
 from delete_fingerprint import delete
 
 
 def authenticate():
-    cred = credentials.Certificate("google_credentials.json")
+    g_cred = getenv('CREDENTIALS') if getenv('CREDENTIALS') else 'google_credentiales.json'
+    cred = credentials.Certificate(g_cred)
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://cda-bithouse.firebaseio.com/',
     })

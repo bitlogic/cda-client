@@ -3,12 +3,12 @@ from firebase_admin import credentials
 from firebase_admin import db
 from pymongo import MongoClient
 import datetime
-from os import system, name
-from delete_fingerprint import delete
+from os import system, getenv
 
 
 def authenticate():
-    cred = credentials.Certificate("google_credentials.json")
+    g_cred = getenv('CREDENTIALS') if getenv('CREDENTIALS') else 'google_credentiales.json'
+    cred = credentials.Certificate(g_cred)
     firebase_admin.initialize_app(cred, options={
         'databaseURL': 'https://cda-bithouse.firebaseio.com/',
     })
@@ -60,6 +60,4 @@ local_db = client['cda']
 
 system('clear')
 authenticate()
-delete_inactive_fingerprints()
-delete_inactive_users()
 sync()
