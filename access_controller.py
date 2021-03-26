@@ -5,10 +5,11 @@ import RPi.GPIO as GPIO
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from pymongo import MongoClient
 
-from database_access import FirebaseAccess, MongoAccess
+from database_access import FirebaseAccess, TinyDbAccess
 from fingerprint_reader import FingerprintReader
+
+from tinydb import TinyDB
 
 GPIO.setmode(GPIO.BCM) # GPIO Numbers instead of board numbers
 
@@ -142,19 +143,15 @@ def execute():
 
 
 def get_database_access():
-    if validate_connection():
-        return firebase_access
-    else:
-        return mongo_access
+    return tiny_db_access
 
-
-client = MongoClient('localhost', 27020)
-local_db = client['cda']
 
 authenticate()
 reader = FingerprintReader()
 
 firebase_access = FirebaseAccess(db)
-mongo_access = MongoAccess(local_db)
+
+tiny_db = TinyDB('./cda.json')
+tiny_db_access = TinyDbAccess(tiny_db)
 
 execute()

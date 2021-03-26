@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 import pytz
+from tinydb import Query
 
 
 class DatabaseAccess:
@@ -52,7 +53,7 @@ def create_log_data(hash_data, user, log_id):
         "datetime": str(time),
         "hash": hash_data,
         "user": user,
-        "_id": log_id
+        "_id": str(log_id)
     }
     return log_data
 
@@ -70,3 +71,25 @@ class MongoAccess(DatabaseAccess):
 
         logs_db = self.db.logs
         logs_db.insert_one(log_data)
+
+
+class TinyDbAccess(DatabaseAccess):
+
+    def get_fingerprint(self, fingerprint):
+        print('Searching fingerprint in local db')
+        finger_db = self.db.table('fingerprints')
+        fingerprint_query = Query()
+
+        user = finger_db.get(fingerprint_query.fingerprint == fingerprint)
+
+        if user:
+            return user['user']
+        else:
+            return None
+
+    def add_log(self, hash, user_id):
+        print('Adding local log')
+        log_data = create_log_data(hash, user_id, uuid.uuid1())
+
+        logs_db = self.db.table('logs')
+        logs_db.insert(log_data)
