@@ -1,9 +1,9 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from pymongo import MongoClient
 import datetime
 from os import system
+from tinydb import TinyDB
 
 
 def authenticate():
@@ -15,20 +15,20 @@ def authenticate():
 
 def sync():
 
-    local_db.fingerprints.drop()
+    local_db.table('fingerprints').truncate()
     fingerprints = db.reference('fingerprints/').get()
     for i in fingerprints:
         add_fingerprint(i, fingerprints[i]['user'])
     print('Finish fingerprint sync')
 
-    local_db.users.drop()
+    local_db.table('users').truncate()
     users = db.reference('users/').get()
     for i in users:
         add_user(i, users[i]['name'], users[i]['lastname'], users[i]['company'], users[i]['status'])
     print('Finish user sync')
 
-    data = {'date': datetime.datetime.now()}
-    local_db.syncs.insert_one(data)
+    data = {'date': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}
+    local_db.table('syncs').insert(data)
     print('Change sync date')
 
 
@@ -42,7 +42,7 @@ def add_user(user_id, name, lastname, company, status):
         'status': status,
         'company': company
     }
-    local_db.users.insert_one(data)
+    local_db.table('users').insert(data)
 
 
 def add_fingerprint(fingerprint_id, user_id):
@@ -50,11 +50,10 @@ def add_fingerprint(fingerprint_id, user_id):
         'fingerprint': fingerprint_id,
         'user': user_id
     }
-    local_db.fingerprints.insert_one(data)
+    local_db.table('fingerprints').insert(data)
 
 
-client = MongoClient('localhost', 27017)
-local_db = client['cda']
+local_db = TinyDB('./cda.json')
 
 
 system('clear')
