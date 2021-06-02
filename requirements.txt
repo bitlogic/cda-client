@@ -1,6 +1,6 @@
 firebase-admin==4.3.0
 pymongo==3.4.0
 pytz==2020.1
-urllib3==1.24.3
+urllib3==1.26.5
 
 pyfingerprint~=1.5
